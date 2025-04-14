@@ -59,7 +59,7 @@ def log_search(query, result):
     logging.info(f"検索クエリ: {query}")
     logging.info(f"検索結果: {result}")
 
-# PDF保存のための関数（IPAex明朝フォント使用）
+# PDF保存のための関数
 def save_pdf(content, save_path):
     pdf = FPDF()
     pdf.set_auto_page_break(auto=True, margin=15)
@@ -126,7 +126,7 @@ def generate_summary_with_retry(topic, max_retries=5):
 
     return response  
 
-# Streamlit UI部分
+# UI部分
 st.title("AIレポート生成ツール")
 topic = st.text_input("トピックを入力してください：", "")
 
@@ -153,6 +153,6 @@ if st.button("レポート生成"):
     # PDF形式で保存
     save_pdf(response, pdf_save_path)
 
-    # ダウンロードボタン（PDFファイル）
+    # ダウンロードボタン
     with open(pdf_save_path, "rb") as f:
         st.download_button("PDFで保存", data=f, file_name="report.pdf", mime="application/pdf")
