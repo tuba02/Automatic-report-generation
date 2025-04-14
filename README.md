@@ -32,6 +32,29 @@ PDF出力には日本語表示に対応した以下のフォントを使用し�
 
 ## セットアップ方法
 1. 必要ライブラリをインストール：  
-pip install -r requirements.txt  
+   pip install -r requirements.txt  
+
+2. .envファイルをプロジェクトルートに作成し、以下を記載:  
+   OPENROUTER_API_KEY=your_openrouter_api_key_here  
+
+3. Streamlitアプリを起動:
+   streamlit run app.py  
+
+## ディレクトリ構成（例）
+Automatic_report_generation/  
+├── main.py  
+├── fonts/  
+│   └── ipaexm.ttf  
+├── report_output/  
+│   ├── report.md  
+│   └── report.pdf  
+└──　.env  
+
+## 使用上の注意
+・レポートの長さは自動調整されますが、400字を超える場合は最大3回まで再生成を試みます。  
+・Web検索はDuckDuckGo経由で行いますが、検索内容によっては結果が不十分な場合があります。  
+
+## ライセンス
+このプロジェクトはMITライセンスのもとで公開されています。IPAえｘフォントに関しては別途ライセンス条件に従ってください。
 
 
