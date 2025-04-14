@@ -12,6 +12,10 @@ import streamlit as st
 import warnings
 warnings.filterwarnings("ignore", message="cmap value too big/small")
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FONTS_DIR = os.path.join(BASE_DIR, "fonts")
+OUTPUT_DIR = os.path.join(BASE_DIR, "report_output")
+
 # 環境変数読み込み
 load_dotenv()
 api_key = os.getenv("OPENROUTER_API_KEY")
@@ -45,7 +49,7 @@ agent = initialize_agent(
 
 # ログの設定
 logging.basicConfig(
-    filename=r"C:\Autoreport\report_output\search_log.txt",
+    filename=log_file,
     level=logging.INFO,
     format='%(asctime)s - %(message)s',
 )
@@ -62,7 +66,8 @@ def save_pdf(content, save_path):
     pdf.add_page()
 
     # IPAex明朝フォントを追加
-    font_path = r"C:/Autoreport/fonts/ipaexm.ttf"
+    BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+　　font_path = os.path.join(BASE_DIR, "youraddress", "ipaexm.ttf")
     pdf.add_font('IPAexMincho', '', font_path, uni=True)
 
     # タイトル
@@ -75,10 +80,10 @@ def save_pdf(content, save_path):
 
     # 保存先
     pdf.output(save_path)
-    print(f"✅ PDFレポートが {save_path} に保存されました！")
+    print(f"PDFレポートが {save_path} に保存されました！")
 
-# 要約を生成し、400字以内になるように確認・再試行する関数
-def generate_summary_with_retry(topic, max_retries=3):
+# 400文字以内で生成
+def generate_summary_with_retry(topic, max_retries=5):
     retries = 0
     while retries < max_retries:
         # Web検索と要約実行
@@ -102,9 +107,7 @@ def generate_summary_with_retry(topic, max_retries=3):
             return response  # 400字以内であればそのまま返す
         else:
             retries += 1
-            # 再試行するメッセージを表示
             print(f"文字数が400字を超えているため、再試行します。試行回数: {retries}")
-            # プロンプトに再度要約を依頼（文字数を守るように）
             response = agent.run(
                 f"""
                 次のトピックについてWeb検索を行い、日本語で要約してください。
@@ -121,14 +124,14 @@ def generate_summary_with_retry(topic, max_retries=3):
                 """
             )
 
-    return response  # 最大試行回数に達した場合も最終的に返す
+    return response  
 
 # Streamlit UI部分
 st.title("AIレポート生成ツール")
-topic = st.text_input("トピックを入力してください：", "2025年のAIトレンド")
+topic = st.text_input("トピックを入力してください：", "")
 
 if st.button("レポート生成"):
-    # Web検索と要約実行（再試行対応）
+    # Web検索と要約実行
     response = generate_summary_with_retry(topic)
 
     # レポートをMarkdown形式で表示
@@ -136,17 +139,16 @@ if st.button("レポート生成"):
     st.write(response)
     
     # 保存先設定
-    md_save_path = r"C:\Autoreport\report_output\report.md"
-    pdf_save_path = r"C:\Autoreport\report_output\report.pdf"
+    md_save_path = os.path.join(OUTPUT_DIR, "report.md")
+    pdf_save_path = os.path.join(OUTPUT_DIR, "report.pdf")
 
     # フォルダがない場合に作成
     os.makedirs(os.path.dirname(md_save_path), exist_ok=True)
-    os.makedirs(os.path.dirname(pdf_save_path), exist_ok=True)
 
     # Markdown形式で保存
     with open(md_save_path, "w", encoding="utf-8") as f:
         f.write(response)
-    print(f"✅ レポートが {md_save_path} に保存されました！")
+    print(f"レポートが {md_save_path} に保存されました！")
 
     # PDF形式で保存
     save_pdf(response, pdf_save_path)
